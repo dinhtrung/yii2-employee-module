@@ -1,5 +1,5 @@
 {
-	"name": "istt/yii2-np-module",
+	"name": "hellobyte/yii2-employee-module",
 	"description": "The EMS system should provide two web based portals, one for the user for managing the employee details and another for the management of users (admin control panel).",
 	"keywords": ["employee", "hellobyte", "simple"],
 	"type": "yii2-extension",
