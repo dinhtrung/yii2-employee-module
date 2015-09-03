@@ -1,0 +1,26 @@
+{
+	"name": "istt/yii2-np-module",
+	"description": "The EMS system should provide two web based portals, one for the user for managing the employee details and another for the management of users (admin control panel).",
+	"keywords": ["employee", "hellobyte", "simple"],
+	"type": "yii2-extension",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Nguyen Dinh Trung",
+			"email": "nguyendinhtrung141@gmail.com"
+		}
+	],
+	"require": {
+		"yiisoft/yii2": "*",
+		"dektrium/yii2-user": "*",
+		"unclead/yii2-multiple-input": "~1.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"hellobyte\\employee\\": ""
+		}
+	},
+	"extra": {
+        "bootstrap": "istt\\np\\Bootstrap"
+    }
+}
