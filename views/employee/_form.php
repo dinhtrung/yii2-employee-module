@@ -1,7 +1,10 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
+use kartik\widgets\ActiveForm;
+use kartik\builder\TabularForm;
+use kartik\grid\GridView;
+
 
 /* @var $this yii\web\View */
 /* @var $model hellobyte\employee\models\Employee */
@@ -39,6 +42,34 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'telephone')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'nationality')->textInput(['maxlength' => true]) ?>
+
+    <?= TabularForm::widget([
+    		'form' => $form,
+    		'dataProvider' => $certificateModels,
+    		'attributes' => [
+    				'degree' => ['type' => TabularForm::INPUT_TEXT],
+    				'year' => ['type' => TabularForm::INPUT_TEXT],
+    				'certificated_by' => ['type' => TabularForm::INPUT_TEXT],
+			],
+    		'gridSettings' => [
+    				'floatHeader' => true,
+    				'panel' => [
+    						'heading' => '<h3 class="panel-title"><i class="glyphicon glyphicon-book"></i> Manage Books</h3>',
+    						'type' => GridView::TYPE_PRIMARY,
+    						'after'=>
+    						Html::a(
+    								'<i class="glyphicon glyphicon-plus"></i> Add New',
+    								['e-certificate/create'],
+    								['class'=>'btn btn-success']
+    						) . '&nbsp;' .
+    						Html::a(
+    								'<i class="glyphicon glyphicon-remove"></i> Delete',
+    								['e-certificate/delete'],
+    								['class'=>'btn btn-danger']
+    						)
+    				]
+    		]
+    ]) ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? Yii::t('hellobyte', 'Create') : Yii::t('hellobyte', 'Update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

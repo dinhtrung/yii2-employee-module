@@ -11,5 +11,5 @@ class EmployeeModule extends \yii\base\Module
 	public $urlPrefix = 'hellobyte';
 	/** @var array The rules to be used in URL management. */
 	public $urlRules = [];
-	public $defaultRoute = 'network-operator';
+	public $defaultRoute = 'employee';
 }

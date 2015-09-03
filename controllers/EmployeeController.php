@@ -8,6 +8,8 @@ use hellobyte\employee\search\EmployeeSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\data\ActiveDataProvider;
+use hellobyte\employee\models\ECertificate;
 
 /**
  * EmployeeController implements the CRUD actions for Employee model.
@@ -61,12 +63,14 @@ class EmployeeController extends Controller
     public function actionCreate()
     {
         $model = new Employee();
+        $certificateModels = new ActiveDataProvider(['query' => $model->getECertificates()]);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
+            	'certificateModels' => $certificateModels
             ]);
         }
     }
@@ -80,12 +84,15 @@ class EmployeeController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $certificateModels = $model->getECertificates()->all();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+            		'certificateModels' => $certificateModels,
             ]);
         }
     }
