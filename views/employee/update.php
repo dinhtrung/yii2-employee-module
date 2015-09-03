@@ -18,7 +18,7 @@ $this->params['breadcrumbs'][] = Yii::t('hellobyte', 'Update');
 
     <?= $this->render('_form', [
         	'model' => $model,
-    		'certificateModels' => $certificateModels,
+    		'cert' => $cert,
     ]) ?>
 
 </div>

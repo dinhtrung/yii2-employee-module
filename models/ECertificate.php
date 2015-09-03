@@ -24,7 +24,7 @@ class ECertificate extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'e_certificate';
+        return '{{%e_certificate}}';
     }
 
     /**
@@ -45,7 +45,6 @@ class ECertificate extends \yii\db\ActiveRecord
             [['year'], 'safe'],
             [['created_at', 'updated_at'], 'integer'],
             [['e_id', 'degree', 'certificated_by'], 'string', 'max' => 255],
-            [['e_id'], 'exist', 'skipOnError' => true, 'targetClass' => Employee::className(), 'targetAttribute' => ['id']],
         		// Constraint on creating ECertificate
         		[['degree', 'year', 'certificated_by'], 'unique', 'targetAttribute' => ['e_id', 'degree', 'year', 'certificated_by']],
         ];

@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use yii\grid\GridView;
 
 /* @var $this yii\web\View */
 /* @var $model hellobyte\employee\models\Employee */
@@ -33,15 +34,25 @@ $this->params['breadcrumbs'][] = $this->title;
             'dob',
             'address:ntext',
             'email:email',
-            'photo',
-            'sex',
+            [ 'label' => 'Photo', 'value' => Html::img('@web/uploads/' . $model->photo), 'format' => 'html' ],
+            [ 'label' => 'Sex', 'value' => ($model->sex === 0)?'Female':($model->sex?'Male':'Unknown'), 'format' => 'html' ],
             'telephone',
             'nationality',
-            'created_at',
+            'created_at:datetime',
             'created_by',
-            'updated_at',
+            'updated_at:datetime',
             'updated_by',
         ],
     ]) ?>
+
+    <?= GridView::widget([
+    		'dataProvider' => $certs,
+    		'columns' => [
+    				'degree',
+    				'year',
+    				'certificated_by',
+    ]
+
+    ])?>
 
 </div>

@@ -12,8 +12,7 @@
 	],
 	"require": {
 		"yiisoft/yii2": "*",
-		"dektrium/yii2-user": "*",
-		"unclead/yii2-multiple-input": "~1.0"
+		"dektrium/yii2-user": "*"
 	},
 	"autoload": {
 		"psr-4": {
@@ -21,6 +20,6 @@
 		}
 	},
 	"extra": {
-        "bootstrap": "istt\\np\\Bootstrap"
+        "bootstrap": "hellobyte\\employee\\Bootstrap"
     }
 }

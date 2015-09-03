@@ -1,9 +1,7 @@
 <?php
 
 use yii\helpers\Html;
-use kartik\widgets\ActiveForm;
-use kartik\builder\TabularForm;
-use kartik\grid\GridView;
+use yii\widgets\ActiveForm;
 
 
 /* @var $this yii\web\View */
@@ -13,7 +11,7 @@ use kartik\grid\GridView;
 
 <div class="employee-form">
 
-    <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
+    <?php $form = ActiveForm::begin(['enableClientValidation' => false, 'options' => ['enctype' => 'multipart/form-data']]); ?>
 
     <?= $form->field($model, 'id')->textInput(['maxlength' => true])
     ->hint(Yii::t('hellobyte', 'Employee ID (Alphanumeric)')) ?>
@@ -30,7 +28,7 @@ use kartik\grid\GridView;
     <?= $form->field($model, 'email')->textInput(['maxlength' => true])
     ->hint(Yii::t('hellobyte', 'Email Address')) ?>
 
-    <?= $form->field($model, 'photo')->fileInput()
+    <?= $form->field($model, 'photoFile')->fileInput()
     ->hint(Yii::t('hellobyte', 'Photo (passport size')) ?>
 
     <?= $form->field($model, 'sex')->dropDownList([
@@ -43,33 +41,58 @@ use kartik\grid\GridView;
 
     <?= $form->field($model, 'nationality')->textInput(['maxlength' => true]) ?>
 
-    <?= TabularForm::widget([
-    		'form' => $form,
-    		'dataProvider' => $certificateModels,
-    		'attributes' => [
-    				'degree' => ['type' => TabularForm::INPUT_TEXT],
-    				'year' => ['type' => TabularForm::INPUT_TEXT],
-    				'certificated_by' => ['type' => TabularForm::INPUT_TEXT],
-			],
-    		'gridSettings' => [
-    				'floatHeader' => true,
-    				'panel' => [
-    						'heading' => '<h3 class="panel-title"><i class="glyphicon glyphicon-book"></i> Manage Books</h3>',
-    						'type' => GridView::TYPE_PRIMARY,
-    						'after'=>
-    						Html::a(
-    								'<i class="glyphicon glyphicon-plus"></i> Add New',
-    								['e-certificate/create'],
-    								['class'=>'btn btn-success']
-    						) . '&nbsp;' .
-    						Html::a(
-    								'<i class="glyphicon glyphicon-remove"></i> Delete',
-    								['e-certificate/delete'],
-    								['class'=>'btn btn-danger']
-    						)
-    				]
-    		]
-    ]) ?>
+    <?php // Pjax::begin() ?>
+
+    	<div class="cert-first">
+    		<div class="row">
+    			<div class="col-xs-1 cnt">#</div>
+    			<div class="col-xs-3">
+			    	<strong><?= $cert->getAttributeLabel('degree'); ?></strong>
+    			</div>
+    			<div class="col-xs-1">
+			    	<strong><?= $cert->getAttributeLabel('year'); ?></strong>
+    			</div>
+    			<div class="col-xs-7">
+			    	<strong><?= $cert->getAttributeLabel('certificated_by'); ?></strong>
+    			</div>
+    		</div>
+    	</div>
+    	<div class="cert-form">
+    			<?php $i = count($certs = $model->getECertificates()->all()); ?>
+    			<?php foreach ($certs as $k => $ecert): ?>
+				<div class="row">
+	    			<div class="col-xs-1"><?= $k + 1?></div>
+	    			<div class="col-xs-3">
+				    	<?= $form->field($ecert, "[$k]degree")->label(false) ?>
+	    			</div>
+	    			<div class="col-xs-1">
+					<?= $form->field($ecert, "[$k]year")->label(false) ?>
+	    			</div>
+	    			<div class="col-xs-7">
+					<?= $form->field($ecert, "[$k]certificated_by")->label(false) ?>
+	    			</div>
+	    		</div>
+
+    			<?php endforeach; ?>
+    	</div>
+    	<div class="cert-last">
+    		<div class="row">
+    			<div class="col-xs-1 cnt"><?= $i+1?></div>
+    			<div class="col-xs-3">
+			    	<?= $form->field($cert, "[$i]degree")->label(false) ?>
+    			</div>
+    			<div class="col-xs-1">
+				<?= $form->field($cert, "[$i]year")->label(false) ?>
+    			</div>
+    			<div class="col-xs-7">
+				<?= $form->field($cert, "[$i]certificated_by")->label(false) ?>
+    			</div>
+    		</div>
+    	</div>
+    	<?= Html::a('Add Certificates', null, ['class' => 'btn btn-primary pull-right', 'id' => 'add-cert'])?>
+
+
+    <?php // Pjax::end() ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? Yii::t('hellobyte', 'Create') : Yii::t('hellobyte', 'Update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
@@ -78,3 +101,23 @@ use kartik\grid\GridView;
     <?php ActiveForm::end(); ?>
 
 </div>
+
+<?php
+$js =<<< HEREDOC
+(function ($) {
+		$("#add-cert").click(function(){
+				content = $(".cert-last").html();
+				$(".cert-form").append(content);
+				count = parseInt($(".cert-last .cnt").html());
+				console.log(count);
+				$(".cert-last .cnt").html(count + 1);
+				ctn = $(".cert-last").html();
+				console.log (ctn);
+				re = new RegExp('[' + (count - 1) + ']', 'g');
+				ctn = ctn.replace(re, '[' + count + ']');
+				console.log(ctn);
+				$(".cert-last").html(ctn);
+		});
+}(jQuery));
+HEREDOC;
+$this->registerJs($js);?>

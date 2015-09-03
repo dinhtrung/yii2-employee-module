@@ -5,6 +5,7 @@ namespace hellobyte\employee\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\BlameableBehavior;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "employee".
@@ -27,12 +28,13 @@ use yii\behaviors\BlameableBehavior;
  */
 class Employee extends \yii\db\ActiveRecord
 {
+	public $photoFile;
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'employee';
+        return '{{%employee}}';
     }
 
     /**
@@ -56,9 +58,11 @@ class Employee extends \yii\db\ActiveRecord
             [['id', 'name', 'email', 'photo', 'nationality'], 'string', 'max' => 255],
             [['name'], 'string', 'max' => 25],
             [['telephone'], 'string', 'max' => 20],
+        		// Extra validation rules
 	            [['email'], 'email'],
         		[['dob'], 'date', 'format' => 'php:d/m/Y'],
-	            [['photo'], 'file', 'extensions' => "gif,png,jpg,jpeg", "mimeTypes" => "image/*"],
+	            [['photoFile'], 'file', 'extensions' => "gif,png,jpg,jpeg"],
+//        		[['iCertificates'], 'safe'],
         ];
     }
 
@@ -81,6 +85,8 @@ class Employee extends \yii\db\ActiveRecord
             'created_by' => Yii::t('hellobyte', 'Created By'),
             'updated_at' => Yii::t('hellobyte', 'Updated At'),
             'updated_by' => Yii::t('hellobyte', 'Updated By'),
+        		// End of GII generated attributes
+        		'photoFile' => Yii::t('hellobyte', 'Upload Photo'),
         ];
     }
 
@@ -104,5 +110,40 @@ class Employee extends \yii\db\ActiveRecord
    			TimestampBehavior::className(),
    			BlameableBehavior::className(),
    	];
+   }
+
+   /** Convert date format to DB **/
+   function afterValidate(){
+   		$tmp = array_reverse(explode('/', $this->dob));
+   		$this->dob = implode('-', $tmp);
+   		return parent::afterValidate();
+   }
+   function afterFind(){
+   		$tmp = array_reverse(explode('-', $this->dob));
+   		$this->dob = implode('/', $tmp);
+
+   	return parent::afterFind();
+   }
+   /** Ensure data integrity **/
+   function beforeSave($insert){
+   		$return = parent::beforeSave($insert);
+   		if ($this->photoFile instanceof UploadedFile){
+   			@mkdir($path = Yii::getAlias('@webroot/uploads/'), 775, true);
+   			$this->photoFile->saveAs($path . $this->photoFile->name);
+   			$this->photo = $this->photoFile->name;
+   		}
+   		return $return;
+   }
+   function beforeDelete(){
+   	ECertificate::deleteAll(['e_id' => $this->id]);
+   	@unlink(Yii::getAlias("@webroot/uploads/") . $this->photo);
+   	return parent::beforeDelete();
+   }
+
+   function afterSave($insert, $changedAttributes){
+   	if (!$insert && ($this->id != $this->getOldAttribute('id'))){
+   		ECertificate::updateAll(['e_id' => $this->id], ['e_id' => $this->getOldAttribute('id')]);
+   	}
+   	return parent::afterSave($insert, $changedAttributes);
    }
 }

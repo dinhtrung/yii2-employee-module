@@ -10,6 +10,10 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\data\ActiveDataProvider;
 use hellobyte\employee\models\ECertificate;
+use hellobyte\employee\models\hellobyte\employee\models;
+use yii\helpers\VarDumper;
+use yii\data\yii\data;
+use yii\web\UploadedFile;
 
 /**
  * EmployeeController implements the CRUD actions for Employee model.
@@ -50,8 +54,10 @@ class EmployeeController extends Controller
      */
     public function actionView($id)
     {
+    	$model = $this->findModel($id);
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
+        		'certs' => new ActiveDataProvider(['query' => $model->getECertificates()]),
         ]);
     }
 
@@ -63,14 +69,32 @@ class EmployeeController extends Controller
     public function actionCreate()
     {
         $model = new Employee();
-        $certificateModels = new ActiveDataProvider(['query' => $model->getECertificates()]);
+        $cert = new ECertificate();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+        	// Handle file upload & save
+        	$model->photoFile = UploadedFile::getInstance($model, 'photoFile');
+        	if ($model->save()){
+	        	foreach (Yii::$app->request->post('ECertificate') as $k => $v){
+	        		$m = new ECertificate();
+	        		$m->e_id = $model->id;
+	        		$m->setAttributes($v);
+	        		if (!$m->save()){
+	        			foreach ($m->getErrors() as $f => $msg){
+	        				Yii::$app->getSession()->addFlash('warning', implode(', ', $msg));
+	        			}
+	        		}
+	        	}
+	        	Yii::$app->getSession()->addFlash('success', Yii::t('hellobyte', 'Successfully create info for {name}', ['name' => $model->name]));
+        	} else {
+	        	Yii::$app->getSession()->addFlash('error', Yii::t('hellobyte', 'Error create employee {name}', ['name' => $model->name]));
+        	}
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
-            	'certificateModels' => $certificateModels
+            	'cert' => $cert
             ]);
         }
     }
@@ -84,15 +108,34 @@ class EmployeeController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $certificateModels = $model->getECertificates()->all();
+        $cert = new ECertificate();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-
+        if ($model->load(Yii::$app->request->post())) {
+        	// Handle file upload & save
+        	$model->photoFile = UploadedFile::getInstance($model, 'photoFile');
+        	if ($model->save()){
+	        	// Handle certificates
+	        	ECertificate::deleteAll(['e_id' => $model->id]);
+	        	foreach (Yii::$app->request->post('ECertificate') as $k => $v){
+	        		if (!$v['degree']) continue;
+	        		$m = new ECertificate();
+	        		$m->e_id = $model->id;
+	        		$m->setAttributes($v);
+	        		if (!$m->save()){
+	        			foreach ($m->getErrors() as $f => $msg){
+	        				Yii::$app->getSession()->addFlash('warning', implode(', ', $msg));
+	        			}
+	        		}
+	        	}
+        		Yii::$app->getSession()->addFlash('success', Yii::t('hellobyte', 'Successfully update info for {name}', ['name' => $model->name]));
+        	} else {
+        		Yii::$app->getSession()->addFlash('error', Yii::t('hellobyte', 'Error update info for {name}', ['name' => $model->name]));
+        	}
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
-            		'certificateModels' => $certificateModels,
+            		'cert' => $cert,
             ]);
         }
     }
