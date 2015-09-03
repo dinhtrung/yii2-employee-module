@@ -20,7 +20,7 @@ Modify the composer.json of your project:
         ...
         {
           "type": "vcs",
-          "url": "https://github.com/hellobyte/yii2-employee-module",
+          "url": "https://github.com/dinhtrung/yii2-employee-module",
           "reference":"master"
         },
         ...
